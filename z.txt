@@ -1,0 +1,63 @@
+to do
+- leaderboard command
+- keeping streaks of people typing gm
+- if i turn off the bot then turn it back on, it loses track of who is on a cooldown (need a database of last successful invocation)
+- gm works. Gm and GM do not
+
+//
+
+- you can keep spamming 'gm' to increase your tally. has to be a way of doing it once per day
+    - cooldown, use buckettype user
+    - if bot resets it doesn't really work, need a database, store last successful invocation
+
+- how can we manage 'streaks' of people typing gm?
+    - UserId | last_used | curr_streak
+    - replit databse is only key/value store. no schemas. might be impossible to do this unless i move it off replit
+
+//
+
+resources
+- https://replit.com/talk/learn/Hosting-discordpy-bots-with-replit/11008
+
+- https://discordpy.readthedocs.io/en/stable/
+
+- https://discordpy.readthedocs.io/en/stable/quickstart.html
+
+- https://stackoverflow.com/questions/55701474/adding-reactions-to-a-message-discord-py-rewrite
+
+- https://www.google.com/search?q=discord+py+cooldown&oq=discord+py+cooldown&aqs=chrome..69i57j0i22i30l3.2667j0j7&sourceid=chrome&ie=UTF-8
+
+- cogs https://www.youtube.com/watch?v=vQw8cFfZPx0
+
+//
+
+a key : value store where it'll be
+
+UserId | count of the number of times they've said it
+
+^ need to add the cooldown then as well, bucket type user
+
+^ doesn't work on bot resets. you'd normally store last successful invocation but i guess we'll have to take shortcuts since replit has its limitations
+
+//
+
+@client.event
+async def on_ready():
+    print('bot has been activated')
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    user = str(message.author.id)
+    content = message.content.lower()
+
+    if content == 'gm':
+        update_db(user)
+
+    await message.channel.send(f'your gm count is {db[user]}')
+
+//
+
+- closing the tab closes bot. replit can continue to run a WEB SERVER if the tab is closed though. a web server runs for 1 hr without any use (so keep poking it)
