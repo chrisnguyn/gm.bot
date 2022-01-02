@@ -31,6 +31,10 @@ async def gm(ctx):
         await ctx.send(f'thank you for your business. your gm count is {db[user]}')
         await ctx.message.add_reaction('✅')
 
+@bot.command()
+async def leaderboard(ctx):
+    await ctx.send(await top_users(bot, ctx))
+
 persist()
 overwatch()
 bot.run(os.environ['TOKEN'])

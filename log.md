@@ -7,6 +7,7 @@ okay so i don't know how to sync my repl.it repo with this github repo but anywa
 - for the first problem it's actually pretty simple. as users use the command, we can add their ID to a set. if someone tries to use the command, check if their ID is in that set or not. at midnight, clear the set (which ties into problem two)
 - we can use the schedule library to schedule jobs, but the problem is that all examples that use the library use it on the main thread. the `while True` part will block the main thread and you'd never turn on the bot, so to alleviate that, we can spin up another thread similar to how we did for running a web server
 - also to avoid circular imports and for general overall quality of life, moved all database logic into its own utility file and same thing for any utility functions related to cooldowns
+- also added a new command, leaderboard. tracks top 10 users. reminds me of top K elements from leetcode. guess it taught me something after all. having to pass the `bot` and `ctx` object around though, really makes me wonder if there's a better way of doing it
 
 ```python
 # main.py
@@ -41,6 +42,31 @@ schedule.every().day.at('00:00').do(reset_cooldowns)
 def overwatch():
     t = Thread(target=watcher)
     t.start()
+```
+
+```python
+# auxiliary.py
+
+import heapq
+from replit import db
+
+async def top_users(bot, ctx):  # has to be a better way than passing stuff around all the time right
+    min_heap = []
+
+    i = 0
+    for key in db.keys():
+        heapq.heappush(min_heap, (db[key], i, int(key)))
+        i += 1
+
+        if len(min_heap) > 10:
+            heapq.heappop(min_heap)
+    
+    msg = ''
+
+    for count, _, user_id in min_heap:
+        msg += f'{i} - {await bot.fetch_user(user_id)} with count of {count}'
+    
+    return msg
 ```
 
 <h3>12/29/2021</h3>
