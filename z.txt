@@ -2,7 +2,6 @@ to do
 - leaderboard command
 - keeping streaks of people typing gm
 - if i turn off the bot then turn it back on, it loses track of who is on a cooldown (need a database of last successful invocation)
-- gm works. Gm and GM do not
 
 //
 
@@ -61,3 +60,21 @@ async def on_message(message):
 //
 
 - closing the tab closes bot. replit can continue to run a WEB SERVER if the tab is closed though. a web server runs for 1 hr without any use (so keep poking it)
+
+//
+
+notes for scheduler and cooldown utils:
+    - use a thread to run this so it doesn't block the main one, t = Thread(target=watcher), pass function don't call it - https://stackoverflow.com/questions/42499299/python-threading-multiple-while-true-loops (DON'T USE WATCHER() LOL)
+    
+    - import schedule, import time
+
+    - def job(): print("I'm working...")
+
+    - schedule.every(10).minutes.do(job)
+    - schedule.every().hour.do(job)
+    - schedule.every().day.at("10:30").do(job)
+    - schedule.every().monday.do(job)
+    - schedule.every().wednesday.at("13:15").do(job)
+    - schedule.every().minute.at(":17").do(job)
+
+    - while True: schedule.run_pending()
