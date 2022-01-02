@@ -1,6 +1,7 @@
 okay so i don't know how to sync my repl.it repo with this github repo but anyways
 
 <h3>02/01/2022</h3>
+
 - okay so someone suggested the idea of resetting the cooldown at midnight instead of actually having to wait 86,400 seconds. i agreed that it was a good idea
 - so two things, one, how do we do that - how can we make users on a cooldown then reset it at midnight? and two, how can we schedule python code to run at a specific time, everyday?
 - for the first problem it's actually pretty simple. as users use the command, we can add their ID to a set. if someone tries to use the command, check if their ID is in that set or not. at midnight, clear the set (which ties into problem two)
