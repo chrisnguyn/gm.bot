@@ -1,6 +1,48 @@
 okay so i don't know how to sync my repl.it repo with this github repo but anyways
 
-<h3>02/01/2022</h3>
+<h3>01/06/2022</h3>
+
+- so i had a separate thread that controlled a scheduler, idk what was going on but it kept bugging out. it was supposed to reset all cooldowns at midnight but people kept being able to use the command twice, maybe even more, in a day
+- maybe it was the same original problem of doing a @cooldown on a user for 86,400 seconds? the 'thread' or 'process' holding onto it would die?
+- anyways, found out a better way of tracking who is on cooldown, and bonus points, even if you turn the bot off and on it'll persist the cooldowns
+- database now stores (count, DAY of the last successful invocation)
+- we used this implementation before, and it was actually really good at its job. it kept the 86,400 second cooldown perfectly, but the problem was that if you gm'd at 7pm, you couldn't gm again until 7:01pm the next day
+- the solution? we can take the current time (time.time()) and get the DAY NUMBER - as in right now the unix timestamp is '1641450606' which equates to '06', so before we kept a database of { user_id : [count, last successful invocation timestamp] }
+- now what we'll do instead is keep a database of { user : [count, last successful invocation DAY] }
+
+```python
+async def gm(ctx):
+    user = str(ctx.author.id)
+
+    if not user_exists(user):
+        add_user(user)
+
+    error = update_user(user)
+
+    if error:
+        await ctx.send(f'once per day only. try again tomorrow')
+        await ctx.message.add_reaction('❌')
+    else:
+        await ctx.send(f'thank you for your business. your gm count is {db[user][0]}')
+        await ctx.message.add_reaction('✅')
+```
+
+```python
+def add_user(user):
+    db[user] = [0, float('-inf')]
+
+def update_user(user):
+    curr_time = round(time.time())
+    day_number = datetime.utcfromtimestamp(curr_time).strftime('%d')
+
+    if day_number == db[user][1]:
+        return -1
+    else:
+        db[user][0] = db[user][0] + 1
+        db[user][1] = day_number
+```
+
+<h3>01/02/2022</h3>
 
 - okay so someone suggested the idea of resetting the cooldown at midnight instead of actually having to wait 86,400 seconds. i agreed that it was a good idea
 - so two things, one, how do we do that - how can we make users on a cooldown then reset it at midnight? and two, how can we schedule python code to run at a specific time, everyday?
