@@ -1,5 +1,9 @@
 okay so i don't know how to sync my repl.it repo with this github repo but anyways
 
+<h3>01/07/2022</h3>
+- okay so, i thought it was perfect, but it wasn't. resets are happening at 7:00pm - why so specific? because that's 12:00am in GMT. i didn't account for timezones when doing the reset! simple fix, just subtract 5 hours and we'll turn it to EST
+- also, next issue, rate limits. the people in this discord are monsters, so we'll just slap 10 minute timeouts on 'gm' for a user, and a 10 minute server wide cooldown for gmboard
+
 <h3>01/06/2022</h3>
 
 - so i had a separate thread that controlled a scheduler, idk what was going on but it kept bugging out. it was supposed to reset all cooldowns at midnight but people kept being able to use the command twice, maybe even more, in a day
@@ -9,6 +13,29 @@ okay so i don't know how to sync my repl.it repo with this github repo but anywa
 - we used this implementation before, and it was actually really good at its job. it kept the 86,400 second cooldown perfectly, but the problem was that if you gm'd at 7pm, you couldn't gm again until 7:01pm the next day
 - the solution? we can take the current time (time.time()) and get the DAY NUMBER - as in right now the unix timestamp is '1641450606' which equates to '06', so before we kept a database of { user_id : [count, last successful invocation timestamp] }
 - now what we'll do instead is keep a database of { user : [count, last successful invocation DAY] }
+
+```python
+@commands.cooldown(1, 600, commands.BucketType.user)
+
+@commands.cooldown(1, 600, commands.BucketType.guild)
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(f'using command too soon. try again in {round(error.retry_after)} seconds')
+```
+
+```python
+def update_user(user):
+    curr_time = round(time.time()) - (3600 * 5)  # turn GMT to EST, subtract 5 hours
+    day_number = datetime.utcfromtimestamp(curr_time).strftime('%d')
+
+    if day_number == db[user][1]:
+        return -1
+    else:
+        db[user][0] = db[user][0] + 1
+        db[user][1] = day_number
+```
 
 ```python
 async def gm(ctx):
