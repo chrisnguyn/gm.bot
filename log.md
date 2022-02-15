@@ -1,5 +1,21 @@
 okay so i don't know how to sync my repl.it repo with this github repo but anyways
 
+<h3>02/15/2022</h3>
+- added streaks. had to update the database schema from [count, last_successful_invocation] to [count, streak, last_successful_invocation], and when a user uses 'gm' i just check to see if 'today' is equal to 'last_successful + 1'. if it is, streak += 1. otherwise, streak = 1
+- no 'cooldowns_util.py' in v5 since we handle the cooldown in db_utils
+- how do we change the database schema (port over to the new model) without losing everyone's data? historically i always just dropped everyone's data and reinitialized it, but some people have daily counts of 40 and 50, so i don't think they'll be too happy if they lost it
+- i ran a migrate() function where it goes over all the keys in the DB and reinitializes it
+
+```python
+# db[user] = [count, last_used]
+# db[user] = [count, streak, last_used]
+
+def migrate():
+    for user in db:
+        count, last_used = db[user][0], db[user][1]
+        db[user] = [count, 0, last_used]
+```
+
 <h3>01/07/2022</h3>
 - okay so, i thought it was perfect, but it wasn't. resets are happening at 7:00pm - why so specific? because that's 12:00am in GMT. i didn't account for timezones when doing the reset! simple fix, just subtract 5 hours and we'll turn it to EST
 - also, next issue, rate limits. the people in this discord are monsters, so we'll just slap 10 minute timeouts on 'gm' for a user, and a 10 minute server wide cooldown for gmboard
