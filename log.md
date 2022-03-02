@@ -1,6 +1,7 @@
 okay so i don't know how to sync my repl.it repo with this github repo but anyways
 
-<h3>02/28/2022</h3>
+<h2>02/28/2022</h2>
+
 - okay this one is going to be a fucking nightmare. right now gm.bot is only used in one discord server, but i want to use him in another; why is this an issue? because users in serverA will show up on the leaderboard for serverB, and so on
 - this is because this is the database:
 
@@ -85,7 +86,8 @@ def migrate(ctx):  # from user : [] -> (user, guild) : []
 - instead i went with "how many days has it been since the epoch" so i don't have to worry about months turning over, it's a continuously number counting up (19051, 19052, 19053, ...)
 
 
-<h3>02/15/2022</h3>
+<h2>02/15/2022</h2>
+
 - added streaks. had to update the database schema from [count, last_successful_invocation] to [count, streak, last_successful_invocation], and when a user uses 'gm' i just check to see if 'today' is equal to 'last_successful + 1'. if it is, streak += 1. otherwise, streak = 1
 - no 'cooldowns_util.py' in v5 since we handle the cooldown in db_utils
 - how do we change the database schema (port over to the new model) without losing everyone's data? historically i always just dropped everyone's data and reinitialized it, but some people have daily counts of 40 and 50, so i don't think they'll be too happy if they lost it
@@ -102,12 +104,14 @@ def migrate():
 ```
 
 
-<h3>01/07/2022</h3>
+<h2>01/07/2022</h2>
+
 - okay so, i thought it was perfect, but it wasn't. resets are happening at 7:00pm - why so specific? because that's 12:00am in GMT. i didn't account for timezones when doing the reset! simple fix, just subtract 5 hours and we'll turn it to EST
 - also, next issue, rate limits. the people in this discord are monsters, so we'll just slap 10 minute timeouts on 'gm' for a user, and a 10 minute server wide cooldown for gmboard
 
 
-<h3>01/06/2022</h3>
+<h2>01/06/2022</h2>
+
 - so i had a separate thread that controlled a scheduler, idk what was going on but it kept bugging out. it was supposed to reset all cooldowns at midnight but people kept being able to use the command twice, maybe even more, in a day
 - maybe it was the same original problem of doing a @cooldown on a user for 86,400 seconds? the 'thread' or 'process' holding onto it would die?
 - anyways, found out a better way of tracking who is on cooldown, and bonus points, even if you turn the bot off and on it'll persist the cooldowns
@@ -172,7 +176,8 @@ def update_user(user):
 ```
 
 
-<h3>01/02/2022</h3>
+<h2>01/02/2022</h2>
+
 - okay so someone suggested the idea of resetting the cooldown at midnight instead of actually having to wait 86,400 seconds. i agreed that it was a good idea
 - so two things, one, how do we do that - how can we make users on a cooldown then reset it at midnight? and two, how can we schedule python code to run at a specific time, everyday?
 - for the first problem it's actually pretty simple. as users use the command, we can add their ID to a set. if someone tries to use the command, check if their ID is in that set or not. at midnight, clear the set (which ties into problem two)
@@ -241,7 +246,8 @@ async def top_users(bot, ctx):  # has to be a better way than passing stuff arou
 ```
 
 
-<h3>12/29/2021</h3>
+<h2>12/29/2021</h2>
+
 - i originally had a `@commands.cooldown(1, 86400, commands.BucketType.user)`, but this isn't good for anything over 1 hour. the process holding onto it for 86k seconds will die eventally
 - repl.it database is a simple `key : value` store and you only get one, so i was already using it for `{ user_id : count }`
 - i updated it to be an array of data, so now we have `{ user_id : (count, last_successful_invocation) }`
