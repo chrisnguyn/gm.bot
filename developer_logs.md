@@ -1,5 +1,33 @@
 okay so i don't know how to sync my repl.it repo with this github repo but anyways
 
+<h3>03/13/2022</h3>
+
+- on v6 (going to start referencing what date correlates to what version)
+- added an admin command 'force' that let's me update a users count / streak from discord, so i dont have to write in the main() function `db['user_id'] = [..., ..., ...]`
+- obviously can only use it if you're me. maybe in the future i'll expand it where anyone with administrator permissions can use it
+- quite proud of how far the project has come. used actively in two servers right now, around ~50 people are using it daily, which is nice. started off as simple counter, then adding once a day, streaks, leaderboard, cross server compatibility, sheeeeeeesh
+
+```python
+@bot.command()
+async def force(ctx, *args):
+    if ctx.author.id != 190276271488499713:
+        await ctx.send('no')
+        await ctx.message.add_reaction('❌')
+    else:
+        guild_id, target_id, count, streak = ctx.guild.id, int(args[0]), int(args[1]), int(args[2])
+        key = str((target_id, guild_id))
+
+        if not dbu.user_exists(key):
+            await ctx.send(f'no key in database for user {target_id} and guild {guild_id}')
+            await ctx.message.add_reaction('❌')
+        else:
+            curr_count, curr_streak, curr_day = db[key]  # grab current values
+            db[key] = [count, streak, curr_day]  # then update
+            await ctx.send(f'updated user successfully')
+            await ctx.message.add_reaction('✅')
+```
+
+
 <h2>02/28/2022</h2>
 
 - okay this one is going to be a fucking nightmare. right now gm.bot is only used in one discord server, but i want to use him in another; why is this an issue? because users in serverA will show up on the leaderboard for serverB, and so on

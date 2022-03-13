@@ -25,7 +25,7 @@ async def on_command_error(ctx, error):
         raise error
 
 
-# @commands.cooldown(1, 60, commands.BucketType.user)
+@commands.cooldown(1, 60, commands.BucketType.member)
 @bot.command(aliases=['Gm', 'GM'])
 async def gm(ctx):
     user_id, guild_id = ctx.author.id, ctx.guild.id
@@ -44,7 +44,7 @@ async def gm(ctx):
         await ctx.message.add_reaction('✅')
 
 
-# @commands.cooldown(1, 60, commands.BucketType.user)
+@commands.cooldown(1, 60, commands.BucketType.member)
 @bot.command(aliases=['Gmself'])
 async def gmself(ctx):
     user_id, guild_id = ctx.author.id, ctx.guild.id
@@ -58,10 +58,30 @@ async def gmself(ctx):
         await ctx.message.add_reaction('✅')
 
 
-# @commands.cooldown(1, 60, commands.BucketType.guild)
+@commands.cooldown(1, 60, commands.BucketType.member)
 @bot.command(aliases=['Gmboard'])
 async def gmboard(ctx):
     await ctx.send(embed = await top_users(bot, ctx))
+    await ctx.message.add_reaction('✅')
+
+
+@bot.command()
+async def force(ctx, *args):
+    if ctx.author.id != 190276271488499713:
+        await ctx.send('no')
+        await ctx.message.add_reaction('❌')
+    else:
+        guild_id, target_id, count, streak = ctx.guild.id, int(args[0]), int(args[1]), int(args[2])
+        key = str((target_id, guild_id))
+
+        if not dbu.user_exists(key):
+            await ctx.send(f'no key in database for user {target_id} and guild {guild_id}')
+            await ctx.message.add_reaction('❌')
+        else:
+            curr_count, curr_streak, curr_day = db[key]  # grab current values
+            db[key] = [count, streak, curr_day]  # then update
+            await ctx.send(f'updated user successfully')
+            await ctx.message.add_reaction('✅')
 
 persist()
 bot.run(os.environ['TOKEN'])
